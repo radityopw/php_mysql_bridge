@@ -14,24 +14,34 @@ function run_query($type,$q){
     
     global $CON;
     global $debug;
+    
+    if(!isset($CON[$type])){
+        
+        throw new SoapFault("RQ-1","There is No Connection For ".$type);
+        
+        if(!$debug){
+            
+            $log = getdate();
+            $log['message'] = "There is No Connection For ".$type;
+            
+            file_put_contents("error.log", print_r($log,true),FILE_APPEND);
+            
+        }
+    }
             
     $con = mysql_connect($CON[$type]['host'], $CON[$type]['user'], $CON[$type]['pass']);
     
     mysql_select_db($CON[$type]['db'],$con);
     
-    if($debug){
-    
-        file_put_contents("conect.log", print_r($CON,true),FILE_APPEND);
-    
-        file_put_contents("conect1.log", print_r($con,true),FILE_APPEND);
         
-    }
-    
     $sql = base64_decode($q);
     
     if($debug){
+        
+        $log = getdate();
+        $log['message'] = $sql;
     
-        file_put_contents("sql.log", $sql,FILE_APPEND);
+        file_put_contents("sql.log", print_r($log,true),FILE_APPEND);
         
     }
     
@@ -45,9 +55,15 @@ function run_query($type,$q){
     
     if($debug){
         
-        file_put_contents("result.log",print_r($data,true),FILE_APPEND);
+        $log = getdate();
+        $log['message'] = $data;
+        
+        file_put_contents("result.log",print_r($log,true),FILE_APPEND);
     
-        file_put_contents("error.log",  mysql_error($con),FILE_APPEND);
+        $log = getdate();
+        $log['message'] = mysql_error($con);
+
+        file_put_contents("error.log", print_r($log, true), FILE_APPEND);
         
     }
     
