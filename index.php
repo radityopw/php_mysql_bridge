@@ -17,9 +17,7 @@ function run_query($type,$q){
     
     if(!isset($CON[$type])){
         
-        throw new SoapFault("RQ-1","There is No Connection For ".$type);
-        
-        if(!$debug){
+        if($debug){
             
             $log = getdate();
             $log['message'] = "There is No Connection For ".$type;
@@ -27,11 +25,28 @@ function run_query($type,$q){
             file_put_contents("error.log", print_r($log,true),FILE_APPEND);
             
         }
+        
+        throw new SoapFault("RQ-1","There is No Connection For ".$type);
+        
+        
     }
             
     $con = mysql_connect($CON[$type]['host'], $CON[$type]['user'], $CON[$type]['pass']);
     
     mysql_select_db($CON[$type]['db'],$con);
+    
+    if($error = mysql_error($con)){
+        
+        if($debug){
+            $log = getdate();
+            $log['message'] = $error;
+            
+            file_put_contents("error.log", print_r($log,true),FILE_APPEND);
+        }
+        
+        throw new SoapFault("RQ-2",$error);
+        
+    }
     
         
     $sql = base64_decode($q);
@@ -46,6 +61,19 @@ function run_query($type,$q){
     }
     
     $res = mysql_query($sql,$con);
+    
+    if($error = mysql_error($con)){
+        
+        if($debug){
+            $log = getdate();
+            $log['message'] = $error;
+            
+            file_put_contents("error.log", print_r($log,true),FILE_APPEND);
+        }
+        
+        throw new SoapFault("RQ-3",$error);
+        
+    }
     
     $data = array();
     
