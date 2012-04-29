@@ -7,6 +7,16 @@ include 'alow.php';
 include 'conn/conn.php';
 
 if(!allow_this()){
+    
+    if($debug){
+            
+        $log = getdate();
+        $log['message'] = "not authorized ip access ".$_SERVER['REMOTE_ADDR'];
+
+        file_put_contents("error.log", print_r($log,true),FILE_APPEND);
+
+    }
+    
     throw new SoapFault("RQ-0","not allowed");
 }
 
