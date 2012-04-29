@@ -7,7 +7,7 @@ include 'alow.php';
 include 'conn/conn.php';
 
 if(!allow_this()){
-    die();
+    throw new SoapFault("RQ-0","not allowed");
 }
 
 function run_query($type,$q){
